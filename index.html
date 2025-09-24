@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licorería - Sistema de Gestión</title>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --secondary: #D2691E;
+            --light: #F5F5DC;
+            --dark: #3E2723;
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: var(--secondary);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+            min-width: 150px;
+        }
+        
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .btn-edit, .btn-delete {
+            padding: 5px 10px;
+            margin-right: 5px;
+        }
+        
+        .btn-edit {
+            background-color: #ffc107;
+            color: black;
+        }
+        
+        .btn-delete {
+            background-color: var(--danger);
+        }
+        
+        .btn-info {
+            background-color: var(--info);
+        }
+        
+        .stock-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stock-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stock-card h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .stock-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .sale-summary {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .report-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .email-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Licorería - Sistema de Gestión</h1>
+            <p>Gestión de inventario y ventas con envío de reportes por email</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="register">Registrar Producto</div>
+            <div class="tab" data-tab="inventory">Inventario</div>
+            <div class="tab" data-tab="sales">Ventas</div>
+            <div class="tab" data-tab="stock">Stock por Categoría</div>
+            <div class="tab" data-tab="reports">Reportes y Email</div>
+        </div>
+        
+        <div id="register" class="tab-content active">
+            <h2>Registro de Productos</h2>
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="product-name">Nombre del Producto:</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-category">Categoría:</label>
+                    <select id="product-category" required>
+                        <option value="">Seleccione una categoría</option>
+                        <option value="whisky">Whisky</option>
+                        <option value="vino">Vino</option>
+                        <option value="vodka">Vodka</option>
+                        <option value="ron">Ron</option>
+                        <option value="cubata">Cubata</option>
+                        <option value="shumir">Shumir</option>
+                        <option value="cigarrillos">Cigarrillos</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-price">Precio Unitario:</label>
+                    <input type="number" id="product-price" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-quantity">Cantidad en Stock:</label>
+                    <input type="number" id="product-quantity" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-alcohol">Grado Alcohólico (solo para bebidas):</label>
+                    <input type="number" id="product-alcohol" step="0.1" min="0" max="100">
+                </div>
+                
+                <button type="submit">Registrar Producto</button>
+            </form>
+            
+            <div id="register-message"></div>
+        </div>
+        
+        <div id="inventory" class="tab-content">
+            <h2>Inventario de Productos</h2>
+            <div class="form-group">
+                <input type="text" id="search-product" placeholder="Buscar producto...">
+            </div>
+            <table id="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Grado Alcohólico</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-body">
+                    <!-- Los productos se cargarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="sales" class="tab-content">
+            <h2>Registro de Ventas</h2>
+            <form id="sale-form">
+                <div class="form-group">
+                    <label for="sale-product">Seleccionar Producto:</label>
+                    <select id="sale-product" required>
+                        <option value="">Seleccione un producto</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sale-quantity">Cantidad:</label>
+                    <input type="number" id="sale-quantity" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <p id="product-details">Precio unitario: $0.00 - Stock disponible: 0</p>
+                </div>
+                
+                <button type="submit">Registrar Venta</button>
+            </form>
+            
+            <div class="sale-summary">
+                <h3>Resumen de Venta</h3>
+                <p>Total a pagar: $<span id="total-amount">0.00</span></p>
+            </div>
+            
+            <div id="sale-message"></div>
+        </div>
+        
+        <div id="stock" class="tab-content">
+            <h2>Stock por Categoría</h2>
+            <div class="stock-section" id="stock-cards">
+                <!-- Las tarjetas de stock se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+        
+        <div id="reports" class="tab-content">
+            <h2>Reportes y Envío por Email</h2>
+            
+            <div class="report-section">
+                <h3>Generar Reporte</h3>
+                <p>Seleccione el tipo de reporte que desea generar y enviar por correo electrónico.</p>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="report-type">Tipo de Reporte:</label>
+                        <select id="report-type">
+                            <option value="inventory">Inventario Completo</option>
+                            <option value="low-stock">Productos con Stock Bajo</option>
+                            <option value="sales">Resumen de Ventas</option>
+                            <option value="categories">Stock por Categoría</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="low-stock-threshold">Umbral Stock Bajo (opcional):</label>
+                        <input type="number" id="low-stock-threshold" value="10" min="1">
+                    </div>
+                </div>
+                
+                <button id="generate-report">Generar Reporte</button>
+                <button id="send-email" class="btn-info">Enviar Reporte por Email</button>
+            </div>
+            
+            <div class="email-form">
+                <h3>Configuración de Email</h3>
+                <form id="email-config-form" action="https://formsubmit.co/roberto.negreteq@gmail.com" method="POST">
+                    <input type="hidden" name="_subject" value="Reporte de Licorería">
+                    <input type="hidden" name="_template" value="table">
+                    
+                    <div class="form-group">
+                        <label for="email-to">Correo Destinatario:</label>
+                        <input type="email" id="email-to" name="email" required placeholder="correo@destinatario.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email-subject">Asunto del Correo:</label>
+                        <input type="text" id="email-subject" name="_subject" value="Reporte de Licorería" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email-message">Mensaje Adicional:</label>
+                        <textarea id="email-message" name="message" rows="4" placeholder="Mensaje opcional que acompañará al reporte"></textarea>
+                    </div>
+                    
+                    <input type="hidden" id="report-data" name="report_data">
+                    <input type="text" name="_honey" style="display:none">
+                    <input type="hidden" name="_captcha" value="false">
+                    
+                    <button type="submit">Enviar Reporte</button>
+                </form>
+            </div>
+            
+            <div id="report-preview">
+                <h3>Vista Previa del Reporte</h3>
+                <div id="report-content">
+                    <p>Genere un reporte para ver la vista previa aquí.</p>
+                </div>
+            </div>
+            
+            <div id="report-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos simulada de productos
+        let products = JSON.parse(localStorage.getItem('licoreria_products')) || [];
+        
+        // Historial de ventas
+        let salesHistory = JSON.parse(localStorage.getItem('licoreria_sales')) || [];
+        
+        // Categorías disponibles
+        const categories = [
+            { id: 'whisky', name: 'Whisky', color: '#8B4513' },
+            { id: 'vino', name: 'Vino', color: '#8B0000' },
+            { id: 'vodka', name: 'Vodka', color: '#F0F8FF' },
+            { id: 'ron', name: 'Ron', color: '#D2691E' },
+            { id: 'cubata', name: 'Cubata', color: '#FF7F50' },
+            { id: 'shumir', name: 'Shumir', color: '#9370DB' },
+            { id: 'cigarrillos', name: 'Cigarrillos', color: '#696969' }
+        ];
+        
+        // Variables para el reporte actual
+        let currentReport = {
+            type: '',
+            content: '',
+            data: ''
+        };
+        
+        // Funciones para manejar las pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remover clase active de todas las pestañas y contenidos
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Agregar clase active a la pestaña clickeada
+                tab.classList.add('active');
+                
+                // Mostrar el contenido correspondiente
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+                
+                // Actualizar datos según la pestaña seleccionada
+                if (tabId === 'inventory') {
+                    loadInventory();
+                } else if (tabId === 'sales') {
+                    loadProductsForSale();
+                } else if (tabId === 'stock') {
+                    loadStockByCategory();
+                } else if (tabId === 'reports') {
+                    // No necesita carga inicial específica
+                }
+            });
+        });
+        
+        // Función para guardar productos en localStorage
+        function saveProducts() {
+            localStorage.setItem('licoreria_products', JSON.stringify(products));
+        }
+        
+        // Función para guardar ventas en localStorage
+        function saveSales() {
+            localStorage.setItem('licoreria_sales', JSON.stringify(salesHistory));
+        }
+        
+        // Función para mostrar mensajes
+        function showMessage(elementId, message, type) {
+            const messageElement = document.getElementById(elementId);
+            messageElement.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            
+            // Limpiar mensaje después de 5 segundos
+            setTimeout(() => {
+                messageElement.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Registrar producto
+        document.getElementById('product-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('product-name').value;
+            const category = document.getElementById('product-category').value;
+            const price = parseFloat(document.getElementById('product-price').value);
+            const quantity = parseInt(document.getElementById('product-quantity').value);
+            const alcohol = document.getElementById('product-alcohol').value || null;
+            
+            // Validar que la categoría sea válida
+            if (!categories.some(cat => cat.id === category)) {
+                showMessage('register-message', 'Por favor seleccione una categoría válida', 'danger');
+                return;
+            }
+            
+            // Crear nuevo producto
+            const newProduct = {
+                id: Date.now(), // ID único basado en timestamp
+                name,
+                category,
+                price,
+                quantity,
+                alcohol
+            };
+            
+            // Agregar producto a la lista
+            products.push(newProduct);
+            
+            // Guardar en localStorage
+            saveProducts();
+            
+            // Limpiar formulario
+            document.getElementById('product-form').reset();
+            
+            // Mostrar mensaje de éxito
+            showMessage('register-message', 'Producto registrado exitosamente', 'success');
+            
+            // Actualizar inventario si está visible
+            if (document.getElementById('inventory').classList.contains('active')) {
+                loadInventory();
+            }
+        });
+        
+        // Cargar inventario
+        function loadInventory() {
+            const inventoryBody = document.getElementById('inventory-body');
+            const searchTerm = document.getElementById('search-product').value.toLowerCase();
+            
+            // Filtrar productos según término de búsqueda
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) || 
+                product.category.toLowerCase().includes(searchTerm)
+            );
+            
+            // Limpiar tabla
+            inventoryBody.innerHTML = '';
+            
+            // Agregar productos a la tabla
+            filteredProducts.forEach(product => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${categories.find(cat => cat.id === product.category).name}</td>
+                    <td>$${product.price.toFixed(2)}</td>
+                    <td>${product.quantity}</td>
+                    <td>${product.alcohol ? product.alcohol + '%' : 'N/A'}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editProduct(${product.id})">Editar</button>
+                        <button class="btn-delete" onclick="deleteProduct(${product.id})">Eliminar</button>
+                    </td>
+                `;
+                
+                inventoryBody.appendChild(row);
+            });
+        }
+        
+        // Función para editar producto
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) return;
+            
+            // Llenar formulario con datos del producto
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-category').value = product.category;
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-quantity').value = product.quantity;
+            document.getElementById('product-alcohol').value = product.alcohol || '';
+            
+            // Eliminar producto de la lista (será reemplazado con los nuevos datos)
+            products = products.filter(p => p.id !== productId);
+            
+            // Guardar cambios
+            saveProducts();
+            
+            // Actualizar inventario
+            loadInventory();
+            
+            // Cambiar a la pestaña de registro
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector('.tab[data-tab="register"]').classList.add('active');
+            document.getElementById('register').classList.add('active');
+            
+            showMessage('register-message', 'Producto cargado para edición. Complete los cambios y haga clic en "Registrar Producto"', 'success');
+        }
+        
+        // Función para eliminar producto
+        function deleteProduct(productId) {
+            if (confirm('¿Está seguro de que desea eliminar este producto?')) {
+                products = products.filter(p => p.id !== productId);
+                saveProducts();
+                loadInventory();
+                showMessage('register-message', 'Producto eliminado exitosamente', 'success');
+            }
+        }
+        
+        // Cargar productos para venta
+        function loadProductsForSale() {
+            const saleProductSelect = document.getElementById('sale-product');
+            
+            // Limpiar select
+            saleProductSelect.innerHTML = '<option value="">Seleccione un producto</option>';
+            
+            // Agregar productos disponibles
+            products.forEach(product => {
+                if (product.quantity > 0) {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = `${product.name} - $${product.price.toFixed(2)} (Stock: ${product.quantity})`;
+                    saleProductSelect.appendChild(option);
+                }
+            });
+            
+            // Actualizar detalles del producto seleccionado
+            updateProductDetails();
+        }
+        
+        // Actualizar detalles del producto seleccionado
+        function updateProductDetails() {
+            const saleProductSelect = document.getElementById('sale-product');
+            const productDetails = document.getElementById('product-details');
+            const saleQuantity = document.getElementById('sale-quantity');
+            const totalAmount = document.getElementById('total-amount');
+            
+            const productId = parseInt(saleProductSelect.value);
+            const product = products.find(p => p.id === productId);
+            
+            if (product) {
+                productDetails.textContent = `Precio unitario: $${product.price.toFixed(2)} - Stock disponible: ${product.quantity}`;
+                
+                // Actualizar cantidad máxima
+                saleQuantity.max = product.quantity;
+                
+                // Calcular total
+                calculateTotal();
+            } else {
+                productDetails.textContent = 'Precio unitario: $0.00 - Stock disponible: 0';
+                totalAmount.textContent = '0.00';
+                saleQuantity.value = '';
+                saleQuantity.max = 0;
+            }
+        }
+        
+        // Calcular total de venta
+        function calculateTotal() {
+            const saleProductSelect = document.getElementById('sale-product');
+            const saleQuantity = document.getElementById('sale-quantity');
+            const totalAmount = document.getElementById('total-amount');
+            
+            const productId = parseInt(saleProductSelect.value);
+            const quantity = parseInt(saleQuantity.value) || 0;
+            const product = products.find(p => p.id === productId);
+            
+            if (product && quantity > 0) {
+                const total = product.price * quantity;
+                totalAmount.textContent = total.toFixed(2);
+            } else {
+                totalAmount.textContent = '0.00';
+            }
+        }
+        
+        // Registrar venta
+        document.getElementById('sale-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const productId = parseInt(document.getElementById('sale-product').value);
+            const quantity = parseInt(document.getElementById('sale-quantity').value);
+            
+            if (!productId || quantity <= 0) {
+                showMessage('sale-message', 'Por favor seleccione un producto y una cantidad válida', 'danger');
+                return;
+            }
+            
+            const productIndex = products.findIndex(p => p.id === productId);
+            
+            if (productIndex === -1) {
+                showMessage('sale-message', 'Producto no encontrado', 'danger');
+                return;
+            }
+            
+            if (products[productIndex].quantity < quantity) {
+                showMessage('sale-message', 'Stock insuficiente para realizar la venta', 'danger');
+                return;
+            }
+            
+            // Registrar la venta en el historial
+            const sale = {
+                id: Date.now(),
+                productId: productId,
+                productName: products[productIndex].name,
+                quantity: quantity,
+                unitPrice: products[productIndex].price,
+                total: products[productIndex].price * quantity,
+                date: new Date().toLocaleString()
+            };
+            
+            salesHistory.push(sale);
+            saveSales();
+            
+            // Actualizar stock
+            products[productIndex].quantity -= quantity;
+            
+            // Guardar cambios
+            saveProducts();
+            
+            // Mostrar mensaje de éxito
+            showMessage('sale-message', `Venta registrada exitosamente. Total: $${sale.total.toFixed(2)}`, 'success');
+            
+            // Actualizar formulario
+            document.getElementById('sale-form').reset();
+            updateProductDetails();
+            loadProductsForSale();
+        });
+        
+        // Cargar stock por categoría
+        function loadStockByCategory() {
+            const stockCards = document.getElementById('stock-cards');
+            
+            // Limpiar tarjetas
+            stockCards.innerHTML = '';
+            
+            // Calcular stock por categoría
+            const stockByCategory = {};
+            categories.forEach(category => {
+                stockByCategory[category.id] = 0;
+            });
+            
+            products.forEach(product => {
+                if (stockByCategory.hasOwnProperty(product.category)) {
+                    stockByCategory[product.category] += product.quantity;
+                }
+            });
+            
+            // Crear tarjetas para cada categoría
+            categories.forEach(category => {
+                const stockCard = document.createElement('div');
+                stockCard.className = 'stock-card';
+                stockCard.style.borderTop = `4px solid ${category.color}`;
+                
+                stockCard.innerHTML = `
+                    <h3>${category.name}</h3>
+                    <div class="stock-value">${stockByCategory[category.id]}</div>
+                    <p>unidades en stock</p>
+                `;
+                
+                stockCards.appendChild(stockCard);
+            });
+        }
+        
+        // Generar reporte
+        document.getElementById('generate-report').addEventListener('click', function() {
+            const reportType = document.getElementById('report-type').value;
+            const threshold = parseInt(document.getElementById('low-stock-threshold').value) || 10;
+            
+            generateReport(reportType, threshold);
+        });
+        
+        // Función para generar reportes
+        function generateReport(type, threshold = 10) {
+            let reportContent = '';
+            let reportData = '';
+            let reportTitle = '';
+            
+            switch(type) {
+                case 'inventory':
+                    reportTitle = 'Inventario Completo';
+                    reportContent = '<h3>Inventario Completo de Productos</h3>';
+                    reportContent += '<table border="1" style="width:100%; border-collapse:collapse;">';
+                    reportContent += '<tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Grado Alcohólico</th></tr>';
+                    
+                    products.forEach(product => {
+                        reportContent += `<tr>
+                            <td>${product.name}</td>
+                            <td>${categories.find(cat => cat.id === product.category).name}</td>
+                            <td>$${product.price.toFixed(2)}</td>
+                            <td>${product.quantity}</td>
+                            <td>${product.alcohol ? product.alcohol + '%' : 'N/A'}</td>
+                        </tr>`;
+                    });
+                    
+                    reportContent += '</table>';
+                    reportData = JSON.stringify(products);
+                    break;
+                    
+                case 'low-stock':
+                    reportTitle = 'Productos con Stock Bajo';
+                    const lowStockProducts = products.filter(p => p.quantity <= threshold);
+                    
+                    reportContent = `<h3>Productos con Stock Bajo (≤ ${threshold} unidades)</h3>`;
+                    
+                    if (lowStockProducts.length > 0) {
+                        reportContent += '<table border="1" style="width:100%; border-collapse:collapse;">';
+                        reportContent += '<tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th></tr>';
+                        
+                        lowStockProducts.forEach(product => {
+                            reportContent += `<tr>
+                                <td>${product.name}</td>
+                                <td>${categories.find(cat => cat.id === product.category).name}</td>
+                                <td>$${product.price.toFixed(2)}</td>
+                                <td>${product.quantity}</td>
+                            </tr>`;
+                        });
+                        
+                        reportContent += '</table>';
+                    } else {
+                        reportContent += '<p>No hay productos con stock bajo.</p>';
+                    }
+                    
+                    reportData = JSON.stringify(lowStockProducts);
+                    break;
+                    
+                case 'sales':
+                    reportTitle = 'Resumen de Ventas';
+                    reportContent = '<h3>Resumen de Ventas Recientes</h3>';
+                    
+                    if (salesHistory.length > 0) {
+                        // Ventas del día
+                        const today = new Date().toLocaleDateString();
+                        const todaySales = salesHistory.filter(sale => sale.date.includes(today));
+                        const todayTotal = todaySales.reduce((sum, sale) => sum + sale.total, 0);
+                        
+                        // Ventas de la semana
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        const weekSales = salesHistory.filter(sale => new Date(sale.date) >= weekAgo);
+                        const weekTotal = weekSales.reduce((sum, sale) => sum + sale.total, 0);
+                        
+                        reportContent += `<p><strong>Ventas de hoy (${today}):</strong> $${todayTotal.toFixed(2)}</p>`;
+                        reportContent += `<p><strong>Ventas de los últimos 7 días:</strong> $${weekTotal.toFixed(2)}</p>`;
+                        
+                        reportContent += '<h4>Últimas ventas:</h4>';
+                        reportContent += '<table border="1" style="width:100%; border-collapse:collapse;">';
+                        reportContent += '<tr><th>Producto</th><th>Cantidad</th><th>Precio Unitario</th><th>Total</th><th>Fecha</th></tr>';
+                        
+                        // Mostrar las últimas 10 ventas
+                        const recentSales = salesHistory.slice(-10);
+                        recentSales.forEach(sale => {
+                            reportContent += `<tr>
+                                <td>${sale.productName}</td>
+                                <td>${sale.quantity}</td>
+                                <td>$${sale.unitPrice.toFixed(2)}</td>
+                                <td>$${sale.total.toFixed(2)}</td>
+                                <td>${sale.date}</td>
+                            </tr>`;
+                        });
+                        
+                        reportContent += '</table>';
+                    } else {
+                        reportContent += '<p>No hay ventas registradas.</p>';
+                    }
+                    
+                    reportData = JSON.stringify(salesHistory);
+                    break;
+                    
+                case 'categories':
+                    reportTitle = 'Stock por Categoría';
+                    reportContent = '<h3>Stock de Productos por Categoría</h3>';
+                    
+                    // Calcular stock por categoría
+                    const stockByCategory = {};
+                    categories.forEach(category => {
+                        stockByCategory[category.name] = 0;
+                    });
+                    
+                    products.forEach(product => {
+                        const categoryName = categories.find(cat => cat.id === product.category).name;
+                        stockByCategory[categoryName] += product.quantity;
+                    });
+                    
+                    reportContent += '<table border="1" style="width:100%; border-collapse:collapse;">';
+                    reportContent += '<tr><th>Categoría</th><th>Stock Total</th></tr>';
+                    
+                    for (const [category, stock] of Object.entries(stockByCategory)) {
+                        reportContent += `<tr><td>${category}</td><td>${stock} unidades</td></tr>`;
+                    }
+                    
+                    reportContent += '</table>';
+                    reportData = JSON.stringify(stockByCategory);
+                    break;
+            }
+            
+            // Actualizar el reporte actual
+            currentReport = {
+                type: type,
+                content: reportContent,
+                data: reportData,
+                title: reportTitle
+            };
+            
+            // Mostrar vista previa
+            document.getElementById('report-content').innerHTML = reportContent;
+            
+            // Actualizar el campo oculto del formulario de email
+            document.getElementById('report-data').value = reportData;
+            
+            // Actualizar el asunto del correo
+            document.getElementById('email-subject').value = `Reporte de Licorería - ${reportTitle}`;
+            
+            showMessage('report-message', `Reporte "${reportTitle}" generado correctamente`, 'success');
+        }
+        
+        // Configurar el formulario de email para FormSubmit
+        document.getElementById('email-config-form').addEventListener('submit', function(e) {
+            // Validar que hay un reporte generado
+            if (!currentReport.content) {
+                e.preventDefault();
+                showMessage('report-message', 'Por favor genere un reporte antes de enviarlo por email', 'danger');
+                return;
+            }
+            
+            // Agregar el contenido del reporte al mensaje
+            const message = document.getElementById('email-message').value;
+            const fullMessage = message + '\n\n' + currentReport.content.replace(/<[^>]*>/g, '');
+            document.getElementById('email-message').value = fullMessage;
+            
+            showMessage('report-message', 'Enviando reporte por correo electrónico...', 'info');
+        });
+        
+        // Event listeners para actualizaciones en tiempo real
+        document.getElementById('search-product').addEventListener('input', loadInventory);
+        document.getElementById('sale-product').addEventListener('change', updateProductDetails);
+        document.getElementById('sale-quantity').addEventListener('input', calculateTotal);
+        
+        // Cargar datos iniciales al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            loadInventory();
+            loadProductsForSale();
+            loadStockByCategory();
+            
+            // Generar un reporte inicial
+            generateReport('inventory');
+        });
+    </script>
+</body>
+</html>
