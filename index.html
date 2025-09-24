@@ -400,9 +400,10 @@
             
             <div class="email-form">
                 <h3>Configuración de Email</h3>
-                <form id="email-config-form" action="https://formsubmit.co/roberto.negreteq@gmail.com" method="POST">
+                <form id="email-config-form" action="https://formsubmit.co/tu_correo@ejemplo.com" method="POST" target="_blank">
                     <input type="hidden" name="_subject" value="Reporte de Licorería">
                     <input type="hidden" name="_template" value="table">
+                    <input type="hidden" name="_next" value="gracias.html">
                     
                     <div class="form-group">
                         <label for="email-to">Correo Destinatario:</label>
@@ -423,7 +424,7 @@
                     <input type="text" name="_honey" style="display:none">
                     <input type="hidden" name="_captcha" value="false">
                     
-                    <button type="submit">Enviar Reporte</button>
+                    <button type="submit" id="submit-email">Enviar Reporte</button>
                 </form>
             </div>
             
@@ -951,6 +952,11 @@
             document.getElementById('email-message').value = fullMessage;
             
             showMessage('report-message', 'Enviando reporte por correo electrónico...', 'info');
+            
+            // Redirección automática después de 3 segundos (como respaldo)
+            setTimeout(() => {
+                window.location.href = 'gracias.html';
+            }, 3000);
         });
         
         // Event listeners para actualizaciones en tiempo real
