@@ -167,6 +167,13 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .stock-card h3 {
@@ -237,6 +244,47 @@
             flex: 1;
         }
         
+        /* Modal para detalles de categoría */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
         @media (max-width: 768px) {
             .form-row {
                 flex-direction: column;
@@ -273,7 +321,10 @@
             <form id="product-form">
                 <div class="form-group">
                     <label for="product-name">Nombre del Producto:</label>
-                    <input type="text" id="product-name" required>
+                    <input type="text" id="product-name" list="product-names" required>
+                    <datalist id="product-names">
+                        <!-- Las opciones se cargan dinámicamente desde JavaScript -->
+                    </datalist>
                 </div>
                 
                 <div class="form-group">
@@ -333,6 +384,13 @@
         <div id="sales" class="tab-content">
             <h2>Registro de Ventas</h2>
             <form id="sale-form">
+                <div class="form-group">
+                    <label for="sale-category">Seleccionar Categoría:</label>
+                    <select id="sale-category" required>
+                        <option value="">Seleccione una categoría</option>
+                    </select>
+                </div>
+                
                 <div class="form-group">
                     <label for="sale-product">Seleccionar Producto:</label>
                     <select id="sale-product" required>
@@ -436,6 +494,19 @@
         </div>
     </div>
 
+    <!-- Modal para detalles de categoría -->
+    <div id="category-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalles de Categoría</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div id="category-details-content">
+                <!-- El contenido se carga dinámicamente -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Base de datos simulada de productos
         let products = JSON.parse(localStorage.getItem('licoreria_products')) || [];
@@ -455,6 +526,30 @@
             { id: 'tequilas', name: 'Tequilas', color: '#9370DB' },
             { id: 'switch', name: 'Switch', color: '#9370DB' },
             { id: 'cigarrillos', name: 'Cigarrillos', color: '#696969' }
+        ];
+        
+        // Productos predefinidos del cliente
+        const predefinedProducts = [
+            { name: 'Cristal Seco', category: 'aguardientes', price: 0, quantity: 0 },
+            { name: 'Zhumir Saborizado', category: 'shumir', price: 0, quantity: 0 },
+            { name: 'Antioqueño Azul', category: 'aguardientes', price: 0, quantity: 0 },
+            { name: 'Tropico Coco 15°', category: 'aguardientes', price: 0, quantity: 0 },
+            { name: 'Vodka krasnaya', category: 'vodkas', price: 0, quantity: 0 },
+            { name: 'Siberian Neutro', category: 'vodkas', price: 0, quantity: 0 },
+            { name: 'Teqilero agave wey', category: 'tequilas', price: 0, quantity: 0 },
+            { name: 'Whisky Old Times', category: 'whiskys', price: 0, quantity: 0 },
+            { name: 'Whisky Jack Collins Red', category: 'whiskys', price: 0, quantity: 0 },
+            { name: 'Whisky Glengold Piña', category: 'whiskys', price: 0, quantity: 0 },
+            { name: 'Switch Saborizados', category: 'switch', price: 0, quantity: 0 },
+            { name: 'Vino Tinto El Frile', category: 'vinos', price: 0, quantity: 0 },
+            { name: 'Vino Catador Tinto', category: 'vinos', price: 0, quantity: 0 },
+            { name: 'Cubata de Vodka Strawberry', category: 'cubatas', price: 0, quantity: 0 },
+            { name: 'Whisky Cuningham', category: 'whiskys', price: 0, quantity: 0 },
+            { name: 'Tequila El Charro', category: 'tequilas', price: 0, quantity: 0 },
+            { name: 'Cartago Extra Fino 20°', category: 'whiskys', price: 0, quantity: 0 },
+            { name: 'Whisky Cartago de Manzana', category: 'whiskys', price: 0, quantity: 0 },
+            { name: 'Whisky Jack Collin\'s Green', category: 'whiskys', price: 0, quantity: 0 },
+            { name: 'Whisky Woytek', category: 'whiskys', price: 0, quantity: 0 }
         ];
         
         // Variables para el reporte actual
@@ -482,6 +577,7 @@
                 if (tabId === 'inventory') {
                     loadInventory();
                 } else if (tabId === 'sales') {
+                    loadCategoriesForSale();
                     loadProductsForSale();
                 } else if (tabId === 'stock') {
                     loadStockByCategory();
@@ -490,6 +586,26 @@
                 }
             });
         });
+        
+        // Función para cargar productos predefinidos en el datalist
+        function loadPredefinedProducts() {
+            const productNamesDatalist = document.getElementById('product-names');
+            productNamesDatalist.innerHTML = '';
+            
+            // Agregar productos predefinidos
+            predefinedProducts.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.name;
+                productNamesDatalist.appendChild(option);
+            });
+            
+            // Agregar productos ya registrados
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.name;
+                productNamesDatalist.appendChild(option);
+            });
+        }
         
         // Función para guardar productos en localStorage
         function saveProducts() {
@@ -541,6 +657,9 @@
             
             // Guardar en localStorage
             saveProducts();
+            
+            // Actualizar la lista de productos predefinidos
+            loadPredefinedProducts();
             
             // Limpiar formulario
             document.getElementById('product-form').reset();
@@ -628,21 +747,42 @@
             }
         }
         
+        // Cargar categorías para venta
+        function loadCategoriesForSale() {
+            const saleCategorySelect = document.getElementById('sale-category');
+            
+            // Limpiar select
+            saleCategorySelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+            
+            // Agregar categorías disponibles
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                saleCategorySelect.appendChild(option);
+            });
+        }
+        
         // Cargar productos para venta
         function loadProductsForSale() {
             const saleProductSelect = document.getElementById('sale-product');
+            const saleCategorySelect = document.getElementById('sale-category');
+            const selectedCategory = saleCategorySelect.value;
             
             // Limpiar select
             saleProductSelect.innerHTML = '<option value="">Seleccione un producto</option>';
             
+            // Filtrar productos por categoría si hay una seleccionada
+            const filteredProducts = selectedCategory ? 
+                products.filter(product => product.category === selectedCategory && product.quantity > 0) :
+                products.filter(product => product.quantity > 0);
+            
             // Agregar productos disponibles
-            products.forEach(product => {
-                if (product.quantity > 0) {
-                    const option = document.createElement('option');
-                    option.value = product.id;
-                    option.textContent = `${product.name} - $${product.price.toFixed(2)} (Stock: ${product.quantity})`;
-                    saleProductSelect.appendChild(option);
-                }
+            filteredProducts.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = `${product.name} - $${product.price.toFixed(2)} (Stock: ${product.quantity})`;
+                saleProductSelect.appendChild(option);
             });
             
             // Actualizar detalles del producto seleccionado
@@ -770,6 +910,7 @@
                 const stockCard = document.createElement('div');
                 stockCard.className = 'stock-card';
                 stockCard.style.borderTop = `4px solid ${category.color}`;
+                stockCard.setAttribute('data-category', category.id);
                 
                 stockCard.innerHTML = `
                     <h3>${category.name}</h3>
@@ -777,9 +918,55 @@
                     <p>unidades en stock</p>
                 `;
                 
+                // Agregar evento click para mostrar detalles
+                stockCard.addEventListener('click', () => {
+                    showCategoryDetails(category.id);
+                });
+                
                 stockCards.appendChild(stockCard);
             });
         }
+        
+        // Función para mostrar detalles de categoría
+        function showCategoryDetails(categoryId) {
+            const category = categories.find(cat => cat.id === categoryId);
+            const categoryProducts = products.filter(p => p.category === categoryId);
+            
+            // Crear contenido del modal
+            let modalContent = `<h3>${category.name} - Detalles de Productos</h3>`;
+            
+            if (categoryProducts.length > 0) {
+                modalContent += '<table><tr><th>Producto</th><th>Stock</th><th>Precio</th></tr>';
+                
+                categoryProducts.forEach(product => {
+                    modalContent += `<tr>
+                        <td>${product.name}</td>
+                        <td>${product.quantity}</td>
+                        <td>$${product.price.toFixed(2)}</td>
+                    </tr>`;
+                });
+                
+                modalContent += '</table>';
+            } else {
+                modalContent += '<p>No hay productos en esta categoría.</p>';
+            }
+            
+            // Mostrar modal
+            document.getElementById('category-details-content').innerHTML = modalContent;
+            document.getElementById('category-details-modal').style.display = 'flex';
+        }
+        
+        // Cerrar modal
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            document.getElementById('category-details-modal').style.display = 'none';
+        });
+        
+        // Cerrar modal al hacer click fuera del contenido
+        document.getElementById('category-details-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('category-details-modal')) {
+                document.getElementById('category-details-modal').style.display = 'none';
+            }
+        });
         
         // Generar reporte
         document.getElementById('generate-report').addEventListener('click', function() {
@@ -956,12 +1143,15 @@
         
         // Event listeners para actualizaciones en tiempo real
         document.getElementById('search-product').addEventListener('input', loadInventory);
+        document.getElementById('sale-category').addEventListener('change', loadProductsForSale);
         document.getElementById('sale-product').addEventListener('change', updateProductDetails);
         document.getElementById('sale-quantity').addEventListener('input', calculateTotal);
         
         // Cargar datos iniciales al cargar la página
         window.addEventListener('DOMContentLoaded', () => {
+            loadPredefinedProducts();
             loadInventory();
+            loadCategoriesForSale();
             loadProductsForSale();
             loadStockByCategory();
             
