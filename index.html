@@ -286,7 +286,7 @@
                         <option value="rons">Rons</option>
                         <option value="cubatas">Cubatas</option>
                         <option value="shumir">Shumir</option>
-                        <option value="arguandientes">Arguandientes</option>
+                        <option value="aguardientes">Aguardientes</option>
                         <option value="tequilas">Tequilas</option>
                         <option value="switch">Switch</option>
                         <option value="cigarrillos">Cigarrillos</option>
@@ -443,13 +443,13 @@
         // Historial de ventas
         let salesHistory = JSON.parse(localStorage.getItem('licoreria_sales')) || [];
         
-        // Categorías disponibles
+        // Categorías disponibles - CORREGIDO: IDs coinciden con los valores del select
         const categories = [
-            { id: 'whisky', name: 'Whisky', color: '#8B4513' },
-            { id: 'vino', name: 'Vino', color: '#8B0000' },
-            { id: 'vodka', name: 'Vodka', color: '#F0F8FF' },
-            { id: 'ron', name: 'Ron', color: '#D2691E' },
-            { id: 'cubata', name: 'Cubata', color: '#FF7F50' },
+            { id: 'whiskys', name: 'Whiskys', color: '#8B4513' },
+            { id: 'vinos', name: 'Vinos', color: '#8B0000' },
+            { id: 'vodkas', name: 'Vodkas', color: '#F0F8FF' },
+            { id: 'rons', name: 'Rons', color: '#D2691E' },
+            { id: 'cubatas', name: 'Cubatas', color: '#FF7F50' },
             { id: 'shumir', name: 'Shumir', color: '#9370DB' },
             { id: 'aguardientes', name: 'Aguardientes', color: '#9370DB' },
             { id: 'tequilas', name: 'Tequilas', color: '#9370DB' },
@@ -512,7 +512,7 @@
             }, 5000);
         }
         
-        // Registrar producto
+        // Registrar producto - CORREGIDO: Validación de categoría corregida
         document.getElementById('product-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -520,9 +520,8 @@
             const category = document.getElementById('product-category').value;
             const price = parseFloat(document.getElementById('product-price').value);
             const quantity = parseInt(document.getElementById('product-quantity').value);
-            //const alcohol = document.getElementById('product-alcohol').value || null;
             
-            // Validar que la categoría sea válida
+            // Validar que la categoría sea válida - CORREGIDO: Ahora compara correctamente
             if (!categories.some(cat => cat.id === category)) {
                 showMessage('register-message', 'Por favor seleccione una categoría válida', 'danger');
                 return;
@@ -534,8 +533,7 @@
                 name,
                 category,
                 price,
-                quantity,
-                alcohol
+                quantity
             };
             
             // Agregar producto a la lista
@@ -556,7 +554,7 @@
             }
         });
         
-        // Cargar inventario
+        // Cargar inventario - CORREGIDO: Eliminada la columna de grados de alcohol
         function loadInventory() {
             const inventoryBody = document.getElementById('inventory-body');
             const searchTerm = document.getElementById('search-product').value.toLowerCase();
@@ -579,7 +577,6 @@
                     <td>${categories.find(cat => cat.id === product.category).name}</td>
                     <td>$${product.price.toFixed(2)}</td>
                     <td>${product.quantity}</td>
-                    // <td>${product.alcohol ? product.alcohol + '%' : 'N/A'}</td>
                     <td>
                         <button class="btn-edit" onclick="editProduct(${product.id})">Editar</button>
                         <button class="btn-delete" onclick="deleteProduct(${product.id})">Eliminar</button>
@@ -601,7 +598,6 @@
             document.getElementById('product-category').value = product.category;
             document.getElementById('product-price').value = product.price;
             document.getElementById('product-quantity').value = product.quantity;
-            //document.getElementById('product-alcohol').value = product.alcohol || '';
             
             // Eliminar producto de la lista (será reemplazado con los nuevos datos)
             products = products.filter(p => p.id !== productId);
@@ -804,7 +800,7 @@
                     reportTitle = 'Inventario Completo';
                     reportContent = '<h3>Inventario Completo de Productos</h3>';
                     reportContent += '<table border="1" style="width:100%; border-collapse:collapse;">';
-                    reportContent += '<tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Grado Alcohólico</th></tr>';
+                    reportContent += '<tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th></tr>';
                     
                     products.forEach(product => {
                         reportContent += `<tr>
@@ -812,7 +808,6 @@
                             <td>${categories.find(cat => cat.id === product.category).name}</td>
                             <td>$${product.price.toFixed(2)}</td>
                             <td>${product.quantity}</td>
-                            <td>${product.alcohol ? product.alcohol + '%' : 'N/A'}</td>
                         </tr>`;
                     });
                     
